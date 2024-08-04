@@ -14,7 +14,7 @@ import (
 // go build -o ./cmd/problem0 ./cmd/problem0
 
 func main() {
-	cfg := new(config.Config)
+	cfg := config.New()
 	cfg.ParseFlags()
 
 	// context responding to ctrl+c (SIGINT)

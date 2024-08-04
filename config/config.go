@@ -14,6 +14,10 @@ const (
 	defaultServerPort = "12345"
 )
 
+func New() *Config {
+	return &Config{defaultServerHost, defaultServerPort}
+}
+
 func (cfg *Config) ParseFlags() {
 	flag.StringVar(&cfg.ServerHost, "host", defaultServerHost, "Listen on the specified `host`")
 	flag.StringVar(&cfg.ServerPort, "port", defaultServerPort, "Listen on the specified `port`")
