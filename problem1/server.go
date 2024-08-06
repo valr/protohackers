@@ -29,8 +29,6 @@ func (srv Server) Run(ctx context.Context) {
 	if err != nil {
 		slog.Error("net.Listen failed:",
 			slog.Any("error", err),
-			slog.String("id", "problem1/server/E001"),
-			slog.Time("time", time.Now()),
 			slog.String("host", srv.host),
 			slog.String("port", srv.port))
 		return
@@ -46,10 +44,7 @@ func (srv Server) Run(ctx context.Context) {
 		conn, err := listener.Accept()
 		if err != nil {
 			if ctx.Err() == nil {
-				slog.Error("listener.Accept failed:",
-					slog.Any("error", err),
-					slog.String("id", "problem1/server/E002"),
-					slog.Time("time", time.Now()))
+				slog.Error("listener.Accept failed:", slog.Any("error", err))
 				continue
 			}
 			break
@@ -74,10 +69,7 @@ func (srv Server) handleConnection(ctx context.Context, conn net.Conn) {
 	for scanner.Scan() {
 		request, valid, err := UnmarshalRequest(scanner.Text())
 		if err != nil {
-			slog.Error("UnmarshalRequest failed:",
-				slog.Any("error", err),
-				slog.String("id", "problem1/server/E003"),
-				slog.Time("time", time.Now()))
+			slog.Error("UnmarshalRequest failed:", slog.Any("error", err))
 			break
 		}
 		if valid {
@@ -90,9 +82,6 @@ func (srv Server) handleConnection(ctx context.Context, conn net.Conn) {
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		slog.Error("scanner.Scan failed:",
-			slog.Any("error", err),
-			slog.String("id", "problem1/server/E004"),
-			slog.Time("time", time.Now()))
+		slog.Error("scanner.Scan failed:", slog.Any("error", err))
 	}
 }

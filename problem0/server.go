@@ -30,8 +30,6 @@ func (srv Server) Run(ctx context.Context) {
 	if err != nil {
 		slog.Error("net.Listen failed:",
 			slog.Any("error", err),
-			slog.String("id", "problem0/server/E001"),
-			slog.Time("time", time.Now()),
 			slog.String("host", srv.host),
 			slog.String("port", srv.port))
 		return
@@ -47,10 +45,7 @@ func (srv Server) Run(ctx context.Context) {
 		conn, err := listener.Accept()
 		if err != nil {
 			if ctx.Err() == nil {
-				slog.Error("listener.Accept failed:",
-					slog.Any("error", err),
-					slog.String("id", "problem0/server/E002"),
-					slog.Time("time", time.Now()))
+				slog.Error("listener.Accept failed:", slog.Any("error", err))
 				continue
 			}
 			break
@@ -79,19 +74,13 @@ func (srv Server) handleConnection(ctx context.Context, conn net.Conn) {
 		if n > 0 {
 			_, errWrite := conn.Write(buffer[:n])
 			if errWrite != nil {
-				slog.Error("conn.Write failed:",
-					slog.Any("error", errWrite),
-					slog.String("id", "problem0/server/E003"),
-					slog.Time("time", time.Now()))
+				slog.Error("conn.Write failed:", slog.Any("error", errWrite))
 				break
 			}
 		}
 		if errRead != nil {
 			if errRead != io.EOF {
-				slog.Error("reader.Read failed:",
-					slog.Any("error", errRead),
-					slog.String("id", "problem0/server/E004"),
-					slog.Time("time", time.Now()))
+				slog.Error("reader.Read failed:", slog.Any("error", errRead))
 			}
 			break
 		}
