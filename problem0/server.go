@@ -17,8 +17,8 @@ type Server struct {
 }
 
 const (
-	ioBufferSize = 4096
 	connTimeout  = 10
+	ioBufferSize = 4096
 )
 
 func NewServer(host, port string) Server {
