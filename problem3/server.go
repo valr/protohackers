@@ -24,7 +24,8 @@ type Server struct {
 }
 
 const (
-	connTimeout = 60
+	connTimeout        = 60
+	chanBufferCapacity = 256
 )
 
 func NewServer(host, port string) Server {
@@ -87,7 +88,19 @@ func (srv *Server) handleConnection(ctx context.Context, conn net.Conn) {
 	}
 
 	srv.mux.Lock()
-	srv.user[name] = make(chan string)
+	srv.user[name] = make(chan string, chanBufferCapacity)
+	srv.sendTo(name, fmt.Sprint("* The room contains: ", strings.Join(srv.listNames(name), ", ")))
+	srv.sendToAllNolock(name, fmt.Sprintf("* %v has entered the room", name))
+	srv.mux.Unlock()
+
+	defer func() {
+		srv.mux.Lock()
+		close(srv.user[name])
+		delete(srv.user, name)
+		srv.sendToAllNolock(name, fmt.Sprintf("* %v has left the room", name))
+		srv.mux.Unlock()
+	}()
+
 	go func() {
 		for message := range srv.user[name] {
 			if err = writeLine(writer, message); err != nil {
@@ -96,9 +109,6 @@ func (srv *Server) handleConnection(ctx context.Context, conn net.Conn) {
 			}
 		}
 	}()
-	srv.sendTo(name, fmt.Sprint("* The room contains: ", strings.Join(srv.listNames(name), ", ")))
-	srv.sendToAllNolock(name, fmt.Sprintf("* %v has entered the room", name))
-	srv.mux.Unlock()
 
 	for {
 		message, err := readLine(reader)
@@ -106,12 +116,6 @@ func (srv *Server) handleConnection(ctx context.Context, conn net.Conn) {
 			if err != io.EOF {
 				slog.Error("readLine failed:", slog.Any("error", err))
 			}
-
-			srv.mux.Lock()
-			close(srv.user[name])
-			delete(srv.user, name)
-			srv.sendToAllNolock(name, fmt.Sprintf("* %v has left the room", name))
-			srv.mux.Unlock()
 			break
 		}
 		srv.sendToAllLock(name, fmt.Sprintf("[%v] %v", name, message))
