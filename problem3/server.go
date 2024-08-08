@@ -82,13 +82,17 @@ func (srv *Server) handleConnection(ctx context.Context, conn net.Conn) {
 	}
 
 	// reject duplicate names
+	srv.mux.RLock()
 	_, ok := srv.user[name]
+	srv.mux.RUnlock()
 	if ok {
 		return
 	}
 
+	channel := make(chan string, chanBufferCapacity)
+
 	srv.mux.Lock()
-	srv.user[name] = make(chan string, chanBufferCapacity)
+	srv.user[name] = channel
 	srv.sendTo(name, fmt.Sprint("* The room contains: ", strings.Join(srv.listNames(name), ", ")))
 	srv.sendToAllNolock(name, fmt.Sprintf("* %v has entered the room", name))
 	srv.mux.Unlock()
@@ -102,7 +106,7 @@ func (srv *Server) handleConnection(ctx context.Context, conn net.Conn) {
 	}()
 
 	go func() {
-		for message := range srv.user[name] {
+		for message := range channel {
 			if err = writeLine(writer, message); err != nil {
 				slog.Error("writeLine failed:", slog.Any("error", err))
 				break
@@ -137,7 +141,7 @@ func (srv *Server) receiveName(reader *bufio.Reader, writer *bufio.Writer) (name
 
 func (srv *Server) listNames(excludedName string) []string {
 	names := make([]string, 0)
-	for name := range srv.user {
+	for name := range srv.user { // already under lock
 		if name != excludedName {
 			names = append(names, name)
 		}
@@ -146,7 +150,7 @@ func (srv *Server) listNames(excludedName string) []string {
 }
 
 func (srv *Server) sendTo(receiver, message string) {
-	srv.user[receiver] <- message
+	srv.user[receiver] <- message // already under lock
 }
 
 func (srv *Server) sendToAllLock(excludedReceiver, message string) {
@@ -156,9 +160,9 @@ func (srv *Server) sendToAllLock(excludedReceiver, message string) {
 }
 
 func (srv *Server) sendToAllNolock(excludedReceiver, message string) {
-	for receiver, ch := range srv.user {
+	for receiver, channel := range srv.user { // already under lock
 		if receiver != excludedReceiver {
-			ch <- message
+			channel <- message
 		}
 	}
 }
