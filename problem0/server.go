@@ -17,7 +17,7 @@ type Server struct {
 }
 
 const (
-	connTimeout  = 10
+	connTimeout  = 60
 	ioBufferSize = 4096
 )
 
@@ -70,17 +70,17 @@ func (srv Server) handleConnection(ctx context.Context, conn net.Conn) {
 	reader := bufio.NewReader(conn)
 
 	for {
-		n, errRead := reader.Read(buffer)
+		n, err := reader.Read(buffer)
 		if n > 0 {
-			_, errWrite := conn.Write(buffer[:n])
-			if errWrite != nil {
-				slog.Error("conn.Write failed:", slog.Any("error", errWrite))
+			_, err := conn.Write(buffer[:n])
+			if err != nil {
+				slog.Error("conn.Write failed:", slog.Any("error", err))
 				break
 			}
 		}
-		if errRead != nil {
-			if errRead != io.EOF {
-				slog.Error("reader.Read failed:", slog.Any("error", errRead))
+		if err != nil {
+			if err != io.EOF {
+				slog.Error("reader.Read failed:", slog.Any("error", err))
 			}
 			break
 		}

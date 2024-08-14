@@ -130,7 +130,8 @@ func (srv *Server) receiveName(reader *bufio.Reader, writer *bufio.Writer) (name
 	if err = writeLine(writer, "coucou, asv stp"); err != nil {
 		return name, err
 	}
-	if name, err = readLine(reader); err != nil {
+	name, err = readLine(reader)
+	if err != nil {
 		return name, err
 	}
 	if !regexp.MustCompile(`^[A-Za-z0-9]+$`).MatchString(name) {

@@ -6,7 +6,8 @@ import (
 )
 
 func readLine(reader *bufio.Reader) (line string, err error) {
-	if line, err = reader.ReadString('\n'); err != nil {
+	line, err = reader.ReadString('\n')
+	if err != nil {
 		return line, err
 	}
 	return strings.TrimSuffix(line, "\n"), nil
@@ -16,7 +17,8 @@ func writeLine(writer *bufio.Writer, line string) (err error) {
 	if !strings.HasSuffix(line, "\n") {
 		line += "\n"
 	}
-	if _, err = writer.WriteString(line); err != nil {
+	_, err = writer.WriteString(line)
+	if err != nil {
 		return err
 	}
 	if err = writer.Flush(); err != nil {

@@ -17,7 +17,7 @@ type Server struct {
 }
 
 const (
-	connTimeout = 10
+	connTimeout = 60
 )
 
 func NewServer(host, port string) Server {
