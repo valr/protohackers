@@ -15,11 +15,11 @@ func NewQuery(data []byte) (query Query, err error) {
 	query.Type, _ = utf8.DecodeRune(data[:1])
 	_, err = binary.Decode(data[1:5], binary.BigEndian, &query.Num1)
 	if err != nil {
-		return Query{}, err
+		return query, err
 	}
 	_, err = binary.Decode(data[5:9], binary.BigEndian, &query.Num2)
 	if err != nil {
-		return Query{}, err
+		return query, err
 	}
 	return query, nil
 }
