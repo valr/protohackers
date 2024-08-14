@@ -17,7 +17,7 @@ type Server struct {
 }
 
 const (
-	connTimeout  = 10
+	connTimeout  = 60
 	ioBufferSize = 9
 )
 
@@ -70,23 +70,31 @@ func (srv Server) handleConnection(ctx context.Context, conn net.Conn) {
 	buffer := make([]byte, ioBufferSize)
 
 	for {
-		_, errRead := io.ReadFull(reader, buffer)
-		if errRead != nil {
-			if errRead != io.EOF {
-				slog.Error("io.ReadFull failed:", slog.Any("error", errRead))
+		_, err := io.ReadFull(reader, buffer)
+		if err != nil {
+			if err != io.EOF {
+				slog.Error("io.ReadFull failed:", slog.Any("error", err))
 			}
 			return
 		}
+		query, err := NewQuery(buffer)
+		if err != nil {
+			slog.Error("NewQuery failed:", slog.Any("error", err))
+			return
+		}
 
-		query := NewQuery(buffer)
 		switch query.Type {
 		case 'I':
 			asset.AddPrice(query.Num1, query.Num2)
 		case 'Q':
-			response := NewResponse(asset.MeanPrice(query.Num1, query.Num2))
-			_, errWrite := conn.Write(response)
-			if errWrite != nil {
-				slog.Error("conn.Write failed:", slog.Any("error", errWrite))
+			response, err := NewResponse(asset.MeanPrice(query.Num1, query.Num2))
+			if err != nil {
+				slog.Error("NewResponse failed:", slog.Any("error", err))
+				return
+			}
+			_, err = conn.Write(response)
+			if err != nil {
+				slog.Error("conn.Write failed:", slog.Any("error", err))
 				return
 			}
 		}
