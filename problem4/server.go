@@ -17,7 +17,6 @@ type Server struct {
 }
 
 const (
-	ioBufferSize = 65535
 	maxRequSize  = 999
 	versionKey   = "version"
 	versionValue = "Ken's k-v Store 1.0"
@@ -51,10 +50,10 @@ func (srv *Server) Run(ctx context.Context) {
 		conn.Close()
 	}()
 
-	buffer := make([]byte, ioBufferSize)
+	requ := make([]byte, maxRequSize+1)
 
 	for {
-		n, addr, err := conn.ReadFromUDP(buffer)
+		n, addr, err := conn.ReadFromUDP(requ)
 		if err != nil {
 			if ctx.Err() != nil {
 				break
@@ -66,7 +65,7 @@ func (srv *Server) Run(ctx context.Context) {
 			slog.Error("request too big")
 			continue
 		}
-		n, resp := srv.handleRequ(string(buffer[:n]))
+		n, resp := srv.handleRequ(string(requ[:n]))
 		if n > 0 {
 			_, err = conn.WriteToUDP([]byte(resp), addr)
 			if err != nil {
