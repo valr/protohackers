@@ -4,6 +4,7 @@ package problem4
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"net"
 	"strings"
@@ -16,10 +17,10 @@ type Server struct {
 }
 
 const (
-	ioBufferSize   = 65535
-	maxRequestSize = 999
-	versionKey     = "version"
-	versionValue   = "Ken's k-v Store 1.0"
+	ioBufferSize = 65535
+	maxRequSize  = 999
+	versionKey   = "version"
+	versionValue = "Ken's k-v Store 1.0"
 )
 
 func NewServer(host, port string) *Server {
@@ -61,12 +62,12 @@ func (srv *Server) Run(ctx context.Context) {
 			slog.Error("conn.ReadFromUDP failed:", slog.Any("error", err))
 			continue
 		}
-		if n > maxRequestSize {
+		if n > maxRequSize {
 			slog.Error("request too big")
 			continue
 		}
-		resp := srv.handleRequest(string(buffer[:n]))
-		if len(resp) > 0 {
+		n, resp := srv.handleRequ(string(buffer[:n]))
+		if n > 0 {
 			_, err = conn.WriteToUDP([]byte(resp), addr)
 			if err != nil {
 				slog.Error("conn.WriteToUDP failed:", slog.Any("error", err))
@@ -76,14 +77,14 @@ func (srv *Server) Run(ctx context.Context) {
 	}
 }
 
-func (srv *Server) handleRequest(request string) (response string) {
-	k, v, ok := strings.Cut(request, "=")
+func (srv *Server) handleRequ(requ string) (n int, resp string) {
+	k, v, ok := strings.Cut(requ, "=")
 	if ok {
 		if k != versionKey {
 			srv.db[k] = v
 		}
 	} else {
-		response = k + "=" + srv.db[k]
+		resp = fmt.Sprintf("%s=%s", k, srv.db[k])
 	}
-	return response
+	return len(resp), resp
 }
