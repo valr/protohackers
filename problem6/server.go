@@ -137,28 +137,24 @@ func (srv *Server) ComputeNewTicket(kObs KeyObservation, obs ValObservation, lim
 		mile1, mile2 := obs[time1], obs[time2]
 		speed := math.Abs(3600 * (float64(mile2) - float64(mile1)) / (float64(time2) - float64(time1)))
 		if speed > float64(lim) {
-			road, plate := kObs.Road, kObs.Plate
-			day1 := uint32(math.Floor(float64(time1) / 86400))
-			day2 := uint32(math.Floor(float64(time2) / 86400))
+			day1, day2 := time1/86400, time2/86400
 
 			var computed bool
 			for day := day1; day <= day2; day++ {
-				if srv.tktComputed[KeyTicket{plate, day}] {
+				if srv.tktComputed[KeyTicket{kObs.Plate, day}] {
 					computed = true
 				}
 			}
-
 			if !computed {
 				for day := day1; day <= day2; day++ {
-					srv.tktComputed[KeyTicket{plate, day}] = true
+					srv.tktComputed[KeyTicket{kObs.Plate, day}] = true
 				}
-				ticket := Ticket{
-					plate, road,
+				srv.DispatchOrStoreTicket(kObs.Road, Ticket{
+					kObs.Plate, kObs.Road,
 					mile1, time1,
 					mile2, time2,
 					uint16(speed*100 + 0.5),
-				}
-				srv.DispatchOrStoreTicket(road, ticket)
+				})
 			}
 		}
 	}
