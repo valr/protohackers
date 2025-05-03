@@ -1,0 +1,6 @@
+
+go build -o ./cmd/problem6 ./cmd/problem6
+vultr_upload_go ./cmd/problem6/problem6
+
+cp /var/sftp/valr/go/problem6 /home/valr/protohackers
+/home/valr/protohackers/problem6 -host 217.163.30.212 -port 8007
