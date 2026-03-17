@@ -149,9 +149,7 @@ func (wrk *Worker) ProcessDispatcher(ctx context.Context, wg *sync.WaitGroup, w 
 	wrk.iAm = iAmDispatcher
 	for _, r := range d.Roads {
 		ch := wrk.srv.GetTktCh(r)
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			for {
 				select {
 				case <-ctx.Done():
@@ -165,7 +163,7 @@ func (wrk *Worker) ProcessDispatcher(ctx context.Context, wg *sync.WaitGroup, w 
 					}
 				}
 			}
-		}()
+		})
 	}
 	return nil
 }
@@ -176,9 +174,7 @@ func (wrk *Worker) ProcessHeartbeat(ctx context.Context, wg *sync.WaitGroup, w i
 	}
 	wrk.heartbeat = true
 	if h.Interval > 0 {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			for {
 				select {
 				case <-ctx.Done():
@@ -192,7 +188,7 @@ func (wrk *Worker) ProcessHeartbeat(ctx context.Context, wg *sync.WaitGroup, w i
 					}
 				}
 			}
-		}()
+		})
 	}
 	return nil
 }

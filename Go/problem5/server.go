@@ -98,7 +98,7 @@ func (srv *Server) handleLines(reader *bufio.Reader, writer *bufio.Writer) {
 
 func rewriteAddress(s string) string {
 	t := strings.Clone(s)
-	for _, str := range strings.Fields(s) {
+	for str := range strings.FieldsSeq(s) {
 		if strings.HasPrefix(str, "7") && len(str) >= 26 && len(str) <= 35 {
 			t = strings.ReplaceAll(t, str, paymentAddress)
 		}
