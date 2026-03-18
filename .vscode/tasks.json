@@ -1,0 +1,45 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "-c",
+                "for dir in ./cmd/problem*; do name=$(basename \"$dir\"); echo \"building $name ...\"; go build -o \"build/$name\" \"$dir\"; done"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/Go"
+            },
+            "problemMatcher": ["$go"],
+            "group": "build"
+        },
+        {
+            "label": "deploy",
+            "type": "shell",
+            "command": "rsync",
+            "args": [
+                "-e",
+                "ssh",
+                "-avz",
+                "--prune-empty-dirs",
+                "build/",
+                "protohackers:/srv/rsync/protohackers/"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/Go"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "build-and-deploy",
+            "dependsOn": ["build", "deploy"],
+            "dependsOrder": "sequence",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
