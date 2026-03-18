@@ -10,7 +10,8 @@ import (
 	"sync"
 	"time"
 
-	"protohackers/util"
+	"github.com/valr/go-std/syncx"
+	"github.com/valr/go-std/util"
 )
 
 const (
@@ -48,14 +49,14 @@ func (wrk *Worker) Run(ctx context.Context, conn net.Conn) {
 	defer conn.Close()
 
 	wg := &sync.WaitGroup{}
-	defer util.WaitTimeout(wg, time.Duration(wgTimeout)*time.Second)
+	defer syncx.WaitTimeout(wg, time.Duration(wgTimeout)*time.Second)
 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
 	go func() {
 		<-ctx.Done()
-		util.WaitTimeout(wg, time.Duration(wgTimeout)*time.Second)
+		syncx.WaitTimeout(wg, time.Duration(wgTimeout)*time.Second)
 		conn.Close()
 	}()
 

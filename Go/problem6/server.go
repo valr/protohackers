@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"protohackers/util"
+	"github.com/valr/go-std/util"
 )
 
 type Server struct {
