@@ -1,6 +1,5 @@
+// Package problem0 implements a TCP echo server (https://protohackers.com/problem/0).
 package problem0
-
-// https://protohackers.com/problem/0
 
 import (
 	"bufio"

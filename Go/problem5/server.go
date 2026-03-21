@@ -1,6 +1,5 @@
+// Package problem5 implements a TCP proxy server that rewrites traffic (https://protohackers.com/problem/5).
 package problem5
-
-// https://protohackers.com/problem/5
 
 import (
 	"bufio"

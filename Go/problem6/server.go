@@ -1,6 +1,5 @@
+// Package problem6 implements a TCP ticketing server for handling speed camera observations (https://protohackers.com/problem/6).
 package problem6
-
-// https://protohackers.com/problem/6
 
 import (
 	"context"

@@ -1,6 +1,5 @@
+// Package problem1 implements a TCP JSON-based request/response server for prime number checking (https://protohackers.com/problem/1).
 package problem1
-
-// https://protohackers.com/problem/1
 
 import (
 	"bufio"

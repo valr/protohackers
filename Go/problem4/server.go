@@ -1,6 +1,5 @@
+// Package problem4 implements a UDP key-value store server (https://protohackers.com/problem/4).
 package problem4
-
-// https://protohackers.com/problem/4
 
 import (
 	"context"

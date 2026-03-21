@@ -1,6 +1,5 @@
+// Package problem2 implements a TCP server for handling asset price queries (https://protohackers.com/problem/2).
 package problem2
-
-// https://protohackers.com/problem/2
 
 import (
 	"bufio"

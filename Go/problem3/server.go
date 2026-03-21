@@ -1,6 +1,5 @@
+// Package problem3 implements a TCP chat server (https://protohackers.com/problem/3).
 package problem3
-
-// https://protohackers.com/problem/3
 
 import (
 	"bufio"
